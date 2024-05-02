@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: dvdrental_user
+      POSTGRES_PASSWORD: dvdrental_password
+      POSTGRES_DB: dvdrental
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      # - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: recep@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: recep123
+    # volumes:
+    #   - pgadmin_data:/root/.pgadmin
+    ports:
+      - 8080:80
+    depends_on:
+      - db
