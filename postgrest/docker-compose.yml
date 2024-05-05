@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+    
+  postgrest:
+    image: postgrest/postgrest
+    ports:
+      - "${POSTGREST_PORT}:3000"
+    environment:
+      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:${POSTGREST_PORT}
+    depends_on:
+      - db
+
+  web-demo:
+    image: nginx:mainline-alpine
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - "./html:/usr/share/nginx/html"
+    restart: always
